@@ -20,27 +20,24 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> apagarLaptop(BuildContext context) async {
-    // Script de AppleScript para apagar la laptop en macOS
-    // with administrator privileges
-    String appleScript = 'do shell script "shutdown -h now"';
-
-    // Mostrar un diálogo de confirmación al usuario
+    // Mostrar diálogo de confirmación al usuario
     bool confirmar = await showDialog(
       context: context,
+      barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Apagar Laptop'),
-          content: const Text(
-              'La laptop se apagará en 10 segundos. ¿Desea continuar?'),
+          title: Text('Apagar Laptop'),
+          content:
+              Text('La laptop se apagará en 10 segundos. ¿Desea continuar?'),
           actions: [
             TextButton(
-              child: const Text('Cancelar'),
+              child: Text('Cancelar'),
               onPressed: () {
                 Navigator.of(context).pop(false);
               },
             ),
             TextButton(
-              child: const Text('Aceptar'),
+              child: Text('Aceptar'),
               onPressed: () {
                 Navigator.of(context).pop(true);
               },
@@ -51,35 +48,79 @@ class _HomePageState extends State<HomePage> {
     );
 
     if (confirmar == true) {
-      // Ejecutar el comando osascript con el script de AppleScript
-      await Process.run('osascript', ['-e', appleScript]);
-
-      // // Mostrar un mensaje de confirmación al usuario
-      // await showDialog(
-      //   context: context,
-      //   builder: (context) {
-      //     return AlertDialog(
-      //       title: Text('Apagar Laptop'),
-      //       content: Text('La laptop se apagará en 10 segundos.'),
-      //       actions: [
-      //         TextButton(
-      //           child: Text('Cancelar'),
-      //           onPressed: () {
-      //             Navigator.of(context).pop();
-      //           },
-      //         ),
-      //       ],
-      //     );
-      //   },
-      // );
-
-      // // Esperar 10 segundos antes de apagar el dispositivo
-      // await Future.delayed(Duration(seconds: 10));
-
-      // Apagar la laptop
-      await Process.run('osascript', ['-e', appleScript]);
+      if (Platform.isMacOS || Platform.isLinux) {
+        // Ejecutar el script de AppleScript para apagar la laptop en macOS o Linux
+        String appleScript =
+            'do shell script "sudo shutdown -h now" with administrator privileges';
+        await Process.run('osascript', ['-e', appleScript]);
+      } else if (Platform.isWindows) {
+        // Ejecutar el comando para apagar la laptop en Windows
+        await Process.run('shutdown', ['-s', '-t', '10']);
+      }
     }
   }
+
+  // Future<void> apagarLaptop(BuildContext context) async {
+  //   // Script de AppleScript para apagar la laptop en macOS
+  //   // with administrator privileges
+  //   String appleScript = 'do shell script "shutdown -h now"';
+
+  //   // Mostrar un diálogo de confirmación al usuario
+  //   bool confirmar = await showDialog(
+  //     context: context,
+  //     builder: (BuildContext context) {
+  //       return AlertDialog(
+  //         title: const Text('Apagar Laptop'),
+  //         content: const Text(
+  //             'La laptop se apagará en 10 segundos. ¿Desea continuar?'),
+  //         actions: [
+  //           TextButton(
+  //             child: const Text('Cancelar'),
+  //             onPressed: () {
+  //               Navigator.of(context).pop(false);
+  //             },
+  //           ),
+  //           TextButton(
+  //             child: const Text('Aceptar'),
+  //             onPressed: () {
+  //               Navigator.of(context).pop(true);
+  //             },
+  //           ),
+  //         ],
+  //       );
+  //     },
+  //   );
+
+  //   if (confirmar == true) {
+  //     // Ejecutar el comando osascript con el script de AppleScript
+  //     await Process.run('osascript', ['-e', appleScript]);
+
+  //     // // Mostrar un mensaje de confirmación al usuario
+  //     // await showDialog(
+  //     //   context: context,
+  //     //   builder: (context) {
+  //     //     return AlertDialog(
+  //     //       title: Text('Apagar Laptop'),
+  //     //       content: Text('La laptop se apagará en 10 segundos.'),
+  //     //       actions: [
+  //     //         TextButton(
+  //     //           child: Text('Cancelar'),
+  //     //           onPressed: () {
+  //     //             Navigator.of(context).pop();
+  //     //           },
+  //     //         ),
+  //     //       ],
+  //     //     );
+  //     //   },
+  //     // );
+
+  //     // // Esperar 10 segundos antes de apagar el dispositivo
+  //     // await Future.delayed(Duration(seconds: 10));
+
+  //     // Apagar la laptop
+  //     await Process.run('osascript', ['-e', appleScript]);
+  //   }
+  // }
 
   Widget _buildBody() {
     return Container(
